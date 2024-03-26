@@ -1,44 +1,34 @@
-pipeline
+@Library('mylibrary')_
+node('built-in')
 {
-    agent any
-    stages
+    stage('ContDownload')
     {
-        stage('continuousDownload')
-        {
-            steps
-            {
-                git 'https://github.com/intelliqittrainings/maven.git'
-            }
-        }
-        stage('continuousBuild')
-        {
-            steps
-            {
-                sh 'mvn package'
-            }
-        }
-        stage('ContinuousDeployment')
-        {
-            steps
-            {
-                deploy adapters: [tomcat9(credentialsId: '45696a2b-30a0-4e1d-8a66-17d945f34737', path: '', url: 'http://172.31.14.111:8080')], contextPath: 'testapp', war: '**/*.war'
-            }
-        }
-        stage('ContinuousTesting')
-        {
-            steps
-            {
-                git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
-                sh 'java -jar /var/lib/jenkins/workspace/DeclrativePipeline1/testing.jar'
-            }
-        }
-        stage('ContinuousDelivery')
-        {
-            steps
-            {
-                input message: 'Need approval from DM!', submitter: 'sumit'
-                deploy adapters: [tomcat9(credentialsId: '45696a2b-30a0-4e1d-8a66-17d945f34737', path: '', url: 'http://172.31.3.52:8080')], contextPath: 'myprodapp', war: '**/*.war'
-            }
-        }
+        cicd.gitDownload("maven")
+    }
+    stage('Contbuild')
+    {
+        cicd.mavenBuild()
+    }
+    stage('ContDeployment')
+    {
+        cicd.tomcatDeploy("ScriptedPipelinewithSharedLibraris","172.31.14.111","testapp69")
+    }
+    stage('ContTesting')
+    {
+        cicd.gitDownload("FunctionalTesting")
+        cicd.runSelenium("ScriptedPipelinewithSharedLibraris")
+    }
+    stage('contDelivery')
+    {
+        cicd.tomcatDeploy("ScriptedPipelinewithSharedLibraris","172.31.3.52","prodapp69")
     }
 }
+
+
+
+
+
+
+
+
+
